@@ -45,7 +45,7 @@ except FileNotFoundError:
     print(f"❌ Password list not found at '{passlist_path}'")
     exit()
 
-print(f"\n🚀 Starting parallel FTP brute-force on {target}:{port} as {username} with {len(passwords)} passwords...\n")
+print(f"\n🚀 Testing all passwords in the list on {target}:{port} as {username}...\n")
 
 found = False
 
@@ -62,10 +62,10 @@ def try_password(pw):
         return pw
     except ftplib.error_perm:
         return None
-    except Exception as e:
+    except Exception:
         return None
 
-max_workers = 10  # Aynı anda kaç paralel deneme yapılacağını buradan ayarla
+max_workers = 10
 
 with ThreadPoolExecutor(max_workers=max_workers) as executor:
     futures = {executor.submit(try_password, pw): pw for pw in passwords}
