@@ -8,6 +8,12 @@ codes:
 
 git clone https://github.com/banana10101-wq/Banana-cracker/
 
+cd Banana-cracker
+
 pip install -r requirements.txt
+
+ls
+
+you can select every service you want:) theres ftp,
 
 
