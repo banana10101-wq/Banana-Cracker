@@ -22,7 +22,7 @@ def main():
     choice = input("Do you want a ready-made password list or your own? (y/n): ").strip().lower()
 
     if choice == 'y':
-        wordlist = "/sdcard/rockyou.txt"  # ya da Termux'ta nereye koyduysan
+        wordlist = "~/Banana-cracker/passlist.txt"  # ya da Termux'ta nereye koyduysan
     else:
         wordlist = input("Type your password list path (example: /sdcard/pass.txt): ").strip()
 
