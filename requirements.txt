@@ -1,0 +1,6 @@
+paramiko
+colorama
+requests
+scapy
+flask
+bs4
