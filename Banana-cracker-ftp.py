@@ -15,17 +15,20 @@ print(r"""
 # Target IP al
 target = input("📍 Target IP: ")
 
-# 4 haneli port iste
+# 2 veya 4 haneli port iste
 while True:
-    port_input = input("📡 Target Port (4-digit, e.g. 2221): ")
-    if not port_input.isdigit() or len(port_input) != 4:
-        print("❌ Please enter a valid 4-digit port (1000–9999).")
+    port_input = input("📡 Target Port (2 veya 4 haneli, örn: 21 veya 2121): ")
+    if not port_input.isdigit():
+        print("❌ Lütfen sadece sayı gir.")
         continue
+    length = len(port_input)
     port = int(port_input)
-    if 1000 <= port <= 9999:
+    if length == 2 and 1 <= port <= 99:
+        break
+    elif length == 4 and 1000 <= port <= 9999:
         break
     else:
-        print("❌ Port must be between 1000 and 9999.")
+        print("❌ Port 2 haneli (1-99) veya 4 haneli (1000-9999) olmalı.")
 
 # Kullanıcı adı al, boşsa anonymous
 username = input("👤 FTP Username (leave blank for anonymous): ")
