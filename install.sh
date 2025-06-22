@@ -1,15 +1,16 @@
 #!/bin/bash
+set -e  # Hata olursa dur
 
 echo "Updating Termux packages..."
-pkg update && pkg upgrade -y
+pkg update -y && pkg upgrade -y
 
-echo "Installing Termux system packages required for building some Python packages..."
-pkg install -y clang python-dev libffi-dev openssl-dev cargo rust
+echo "Installing necessary system packages..."
+pkg install -y python clang libffi openssl rust cargo make git
 
-echo "Upgrading pip and related tools..."
-pip install --upgrade pip setuptools wheel
+echo "Upgrading pip, setuptools, wheel and maturin..."
+pip install --upgrade pip setuptools wheel maturin
 
-echo "Installing Python packages via pip..."
-pip install paramiko colorama requests scapy flask bs4
+echo "Installing Paramiko and related Python packages..."
+pip install paramiko colorama requests scapy flask bs4 bcrypt cryptography==40.0.2
 
-echo "All specified Python packages installed successfully!"
+echo "Installation complete!"
