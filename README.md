@@ -10,7 +10,7 @@ git clone https://github.com/banana10101-wq/Banana-cracker/
 
 cd Banana-cracker
 
-pip install -r requirements.txt
+bash install.sh
 
 python Main.py
 
