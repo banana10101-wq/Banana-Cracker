@@ -12,6 +12,6 @@ cd Banana-cracker
 
 pip install -r requirements.txt
 
-python main.py
+python Main.py
 
 
