@@ -1,11 +1,11 @@
 #!/bin/bash
-set -e  # Hata olursa dur
+set -e
 
 echo "Updating Termux packages..."
 pkg update -y && pkg upgrade -y
 
 echo "Installing necessary system packages..."
-pkg install -y python clang libffi openssl rust cargo make git
+pkg install -y python clang libffi openssl rust make git
 
 echo "Upgrading pip, setuptools, wheel and maturin..."
 pip install --upgrade pip setuptools wheel maturin
