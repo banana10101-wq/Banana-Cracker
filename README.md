@@ -10,7 +10,9 @@ git clone https://github.com/banana10101-wq/Banana-cracker/
 
 cd Banana-cracker
 
-bash install.sh
+chmod +x install.sh
+
+./install.sh
 
 python Main.py
 
