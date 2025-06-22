@@ -74,4 +74,4 @@ for t in threads:
     t.join()
 
 if not found.is_set():
-    print("\n❌ No valid password found.")
+    print("\n❌ No valid password/username found.")
